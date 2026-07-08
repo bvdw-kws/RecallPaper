@@ -1,0 +1,46 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Recall Paper",
+	"Description": "Paper ZD and Paper 2D implementation for Recall",
+	"Category": "Gameplay",
+	"CreatedBy": "Bastien Van de Walle",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"EnabledByDefault" : false,
+	"Modules": [
+		{
+			"Name": "RecallPaperModule",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "PaperZD",
+			"Enabled": true
+		},
+		{
+			"Name": "Recall",
+			"Enabled": true
+		},
+		{
+			"Name": "RecallGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "RecallAbility",
+			"Enabled": true
+		},
+		{
+			"Name": "VariableCollection",
+			"Enabled": true
+		}
+	]
+}	
