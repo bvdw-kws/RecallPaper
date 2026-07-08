@@ -10,8 +10,7 @@
 #include "Actor/RecallPaperZDCharacterActor.h"
 #include "Animation/RecallPaperZDAnimInstance.h"
 #include "MassExecutionContext.h"
-#include "Physics/Character/RecallPhysicsCharacterObject.h"
-#include "Physics/Common/RecallPhysicsCommonObjects.h"
+#include "Physics/RecallPhysicsObjects.h"
 #include "Simulation/Ability/RecallAbilityFragments.h"
 #include "Simulation/Movement/RecallMovementFragments.h"
 #include "Simulation/Physics/RecallPhysicsBodyFragment.h"
@@ -30,8 +29,8 @@ URecallPaperCharacterInitializer::URecallPaperCharacterInitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallActorRepresentationFragment::StaticStruct();
-	Operation = EMassObservedOperation::Add;
+	ObservedTypes.Add(FRecallActorRepresentationFragment::StaticStruct());
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallPaperCharacterInitializer::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -76,8 +75,8 @@ URecallPaperSpriteInitializer::URecallPaperSpriteInitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedType = FRecallActorRepresentationFragment::StaticStruct();
-	Operation = EMassObservedOperation::Add;
+	ObservedTypes.Add(FRecallActorRepresentationFragment::StaticStruct());
+	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
 void URecallPaperSpriteInitializer::InitializeInternal(UObject& Owner, const TSharedRef<FMassEntityManager>& InEntityManager)
@@ -135,9 +134,9 @@ void URecallPaperAnimationRepresentationProcessor::ConfigureQueries(const TShare
 {
 	EntityQuery.AddRequirement<FRecallActorRepresentationFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FRecallMovementFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
-	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
+	EntityQuery.AddRequirement<FJPRPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
+	EntityQuery.AddRequirement<FJPRPhysicsCharacterFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
 	EntityQuery.AddConstSharedRequirement<FRecallPaperCharacterConstSharedFragment>(EMassFragmentPresence::All);
-	EntityQuery.AddConstSharedRequirement<FRecallPhysicsCharacterShapeConstSharedFragment>(EMassFragmentPresence::Optional);
 	EntityQuery.AddSubsystemRequirement<URecallActorSubsystem>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddSubsystemRequirement<URecallPhysicsSubsystem>(EMassFragmentAccess::ReadOnly);
 }
@@ -151,11 +150,10 @@ void URecallPaperAnimationRepresentationProcessor::Execute(FMassEntityManager& E
 		const URecallActorSubsystem& ActorSystem = Context.GetSubsystemChecked<URecallActorSubsystem>();
 		const URecallPhysicsSubsystem& PhysicsSystem = Context.GetSubsystemChecked<URecallPhysicsSubsystem>();
 
-		const auto* CharacterShapePtr = Context.GetConstSharedFragmentPtr<FRecallPhysicsCharacterShapeConstSharedFragment>();
-
 		const TConstArrayView<FRecallActorRepresentationFragment> ActorList = Context.GetFragmentView<FRecallActorRepresentationFragment>();
 		const TConstArrayView<FRecallMovementFragment> MovementList = Context.GetFragmentView<FRecallMovementFragment>();
-		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
+		const TConstArrayView<FJPRPhysicsBodyFragment> BodyList = Context.GetFragmentView<FJPRPhysicsBodyFragment>();
+		const TConstArrayView<FJPRPhysicsCharacterFragment> CharacterList = Context.GetFragmentView<FJPRPhysicsCharacterFragment>();
 
 		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
 		{
@@ -181,22 +179,19 @@ void URecallPaperAnimationRepresentationProcessor::Execute(FMassEntityManager& E
 
 			if (BodyList.IsValidIndex(EntityIndex))
 			{
-				const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
-				const TWeakPtr<const FRecallPhysicsBody> Body = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
+				const FJPRPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
+				const FConstRecallPhysicsBodyView Body = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
 				if (Body.IsValid())
 				{
-					if (CharacterShapePtr != nullptr)
-					{
-						const TWeakPtr<const FRecallPhysicsCharacterBody> CharacterBody = StaticCastWeakPtr<const FRecallPhysicsCharacterBody>(Body);
-						if (CharacterBody.IsValid())
-						{
-							AnimInstance->bGrounded = CharacterBody.Pin()->IsSupported();
-						}
-					}
-					
 					AnimInstance->Velocity = Recall::Math::Utils::UnitsPerFrameToPerSecond(
-						Body.Pin()->GetLinearVelocity());
+						Body.GetLinearVelocity());
 				}
+			}
+
+			if (CharacterList.IsValidIndex(EntityIndex))
+			{
+				const FJPRPhysicsCharacterFragment& CharacterFragment = CharacterList[EntityIndex];
+				AnimInstance->bGrounded = CharacterFragment.bIsSupported;
 			}
 		}
 	});
