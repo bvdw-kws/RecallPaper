@@ -134,7 +134,7 @@ void URecallPaperAnimationRepresentationProcessor::ConfigureQueries(const TShare
 {
 	EntityQuery.AddRequirement<FRecallActorRepresentationFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FRecallMovementFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
-	EntityQuery.AddRequirement<FJPRPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
+	EntityQuery.AddRequirement<FRecallPhysicsBodyFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
 	EntityQuery.AddRequirement<FJPRPhysicsCharacterFragment>(EMassFragmentAccess::ReadOnly, EMassFragmentPresence::Optional);
 	EntityQuery.AddConstSharedRequirement<FRecallPaperCharacterConstSharedFragment>(EMassFragmentPresence::All);
 	EntityQuery.AddSubsystemRequirement<URecallActorSubsystem>(EMassFragmentAccess::ReadOnly);
@@ -152,7 +152,7 @@ void URecallPaperAnimationRepresentationProcessor::Execute(FMassEntityManager& E
 
 		const TConstArrayView<FRecallActorRepresentationFragment> ActorList = Context.GetFragmentView<FRecallActorRepresentationFragment>();
 		const TConstArrayView<FRecallMovementFragment> MovementList = Context.GetFragmentView<FRecallMovementFragment>();
-		const TConstArrayView<FJPRPhysicsBodyFragment> BodyList = Context.GetFragmentView<FJPRPhysicsBodyFragment>();
+		const TConstArrayView<FRecallPhysicsBodyFragment> BodyList = Context.GetFragmentView<FRecallPhysicsBodyFragment>();
 		const TConstArrayView<FJPRPhysicsCharacterFragment> CharacterList = Context.GetFragmentView<FJPRPhysicsCharacterFragment>();
 
 		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); EntityIndex++)
@@ -179,7 +179,7 @@ void URecallPaperAnimationRepresentationProcessor::Execute(FMassEntityManager& E
 
 			if (BodyList.IsValidIndex(EntityIndex))
 			{
-				const FJPRPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
+				const FRecallPhysicsBodyFragment& BodyFragment = BodyList[EntityIndex];
 				const FConstRecallPhysicsBodyView Body = PhysicsSystem.GetBody(BodyFragment.BodyHandle);
 				if (Body.IsValid())
 				{
