@@ -13,7 +13,7 @@
 
 class UPaperFlipbookComponent;
 
-UCLASS(meta=(DisplayName="MS PaperZD Character Actor"))
+UCLASS(meta=(DisplayName="RE PaperZD Character Actor"))
 class URecallPaperCharacterActorTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()
@@ -39,7 +39,7 @@ protected:
 	bool bUseActorScale = true;
 };
 
-UCLASS(meta=(DisplayName="MS Paper Sprite Actor"))
+UCLASS(meta=(DisplayName="RE Paper Sprite Actor"))
 class URecallPaperSpriteActorTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()

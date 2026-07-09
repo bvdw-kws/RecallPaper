@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Representation/Actor/RecallActorRepresentationTypes.h"
+#include "UObject/SoftObjectPath.h"
 
 #include "RecallPaperActorTypes.generated.h"
 
