@@ -46,6 +46,9 @@ void URecallPaperCharacterActorTrait::BuildTemplate(FMassEntityTemplateBuildCont
 		);
 	}
 
+	// The actor is spawned / released by URecallRenderedTagProcessor.
+	BuildContext.AddTag<FRecallCullableActorRepresentationTag>();
+
 	FRecallPaperCharacterConstSharedFragment SharedFragment;
 	SharedFragment.Definition = Definition;
 
@@ -101,6 +104,9 @@ void URecallPaperSpriteActorTrait::BuildTemplate(FMassEntityTemplateBuildContext
 			}
 		);
 	}
+
+	// The actor is spawned / released by URecallRenderedTagProcessor.
+	BuildContext.AddTag<FRecallCullableActorRepresentationTag>();
 
 	FRecallPaperSpriteConstSharedFragment SharedFragment;
 	SharedFragment.Definition = Definition;

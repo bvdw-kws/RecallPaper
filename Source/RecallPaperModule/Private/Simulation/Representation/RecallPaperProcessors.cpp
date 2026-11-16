@@ -29,7 +29,8 @@ URecallPaperCharacterInitializer::URecallPaperCharacterInitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedTypes.Add(FRecallActorRepresentationFragment::StaticStruct());
+	// The actor is only spawned once the entity is rendered, see URecallRenderedTagProcessor.
+	ObservedTypes.Add(FRecallRenderedTag::StaticStruct());
 	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
@@ -41,6 +42,7 @@ void URecallPaperCharacterInitializer::InitializeInternal(UObject& Owner, const 
 void URecallPaperCharacterInitializer::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	EntityQuery.AddRequirement<FRecallActorRepresentationFragment>(EMassFragmentAccess::ReadWrite);
+	EntityQuery.AddTagRequirement<FRecallCullableActorRepresentationTag>(EMassFragmentPresence::All);
 	EntityQuery.AddConstSharedRequirement<FRecallPaperCharacterConstSharedFragment>(EMassFragmentPresence::All);
 	EntityQuery.AddSubsystemRequirement<URecallActorSubsystem>(EMassFragmentAccess::ReadWrite);
 }
@@ -75,7 +77,8 @@ URecallPaperSpriteInitializer::URecallPaperSpriteInitializer()
 	: EntityQuery(*this)
 {
 	ExecutionFlags = static_cast<int32>(EProcessorExecutionFlags::All);
-	ObservedTypes.Add(FRecallActorRepresentationFragment::StaticStruct());
+	// The actor is only spawned once the entity is rendered, see URecallRenderedTagProcessor.
+	ObservedTypes.Add(FRecallRenderedTag::StaticStruct());
 	ObservedOperations = EMassObservedOperationFlags::Add;
 }
 
@@ -87,6 +90,7 @@ void URecallPaperSpriteInitializer::InitializeInternal(UObject& Owner, const TSh
 void URecallPaperSpriteInitializer::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
 	EntityQuery.AddRequirement<FRecallActorRepresentationFragment>(EMassFragmentAccess::ReadWrite);
+	EntityQuery.AddTagRequirement<FRecallCullableActorRepresentationTag>(EMassFragmentPresence::All);
 	EntityQuery.AddConstSharedRequirement<FRecallPaperSpriteConstSharedFragment>(EMassFragmentPresence::All);
 	EntityQuery.AddSubsystemRequirement<URecallActorSubsystem>(EMassFragmentAccess::ReadWrite);
 }
